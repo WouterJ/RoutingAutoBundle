@@ -30,7 +30,7 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowException()
     {
-        $this->throwException->execute($this->routeStack);
+        $this->throwException->execute($this->routeStack, array());
     }
 }
 

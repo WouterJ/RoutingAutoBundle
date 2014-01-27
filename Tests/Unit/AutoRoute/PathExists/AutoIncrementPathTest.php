@@ -106,7 +106,9 @@ class AutoIncrementPathTest extends \PHPUnit_Framework_TestCase
                 ->with($this->routeStack);
         }
 
-        $this->aiPath->execute($this->routeStack);
+        $this->aiPath->execute($this->routeStack, array(
+            'format' => '%s-%d',
+        ));
     }
 
     public function testFormatOption()
@@ -146,7 +148,6 @@ class AutoIncrementPathTest extends \PHPUnit_Framework_TestCase
             ->with($this->routeStack);
 
         $aiPath = new AutoIncrementPath($this->dm, $this->routeMaker);
-        $aiPath->init(array('format' => '%d'));
-        $aiPath->execute($this->routeStack);
+        $aiPath->execute($this->routeStack, array('format' => '%s%d'));
     }
 }

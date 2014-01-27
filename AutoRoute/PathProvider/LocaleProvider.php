@@ -12,7 +12,6 @@
 
 namespace Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProvider;
 
-use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProviderInterface;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\Exception\MissingOptionException;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\Exception\CouldNotFindRouteException;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\RouteStack;
@@ -27,13 +26,9 @@ use Doctrine\Common\Collections\ArrayCollection;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class LocaleProvider implements PathProviderInterface
+class LocaleProvider extends AbstractPathProvider
 {
-    public function init(array $options)
-    {
-    }
-
-    public function providePath(RouteStack $routeStack)
+    public function providePath(RouteStack $routeStack, array $options)
     {
         $context = $routeStack->getContext();
         $locale = $context->getLocale();

@@ -12,7 +12,7 @@
 
 namespace Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathExists;
 
-use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathActionInterface;
+use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\AbstractPathAction;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\BuilderContext;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\RouteStack;
 use Doctrine\ODM\PHPCR\DocumentManager;
@@ -20,7 +20,7 @@ use Doctrine\ODM\PHPCR\DocumentManager;
 /**
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class UsePath implements PathActionInterface
+class UsePath extends AbstractPathAction
 {
     protected $dm;
 
@@ -29,11 +29,7 @@ class UsePath implements PathActionInterface
         $this->dm = $dm;
     }
 
-    public function init(array $options)
-    {
-    }
-
-    public function execute(RouteStack $routeStack)
+    public function execute(RouteStack $routeStack, array $options)
     {
         $paths = $routeStack->getFullPaths();
 
@@ -42,8 +38,7 @@ class UsePath implements PathActionInterface
 
             if (!$route) {
                 throw new \RuntimeException(sprintf(
-                    'Expected to find a document at "%s",  but didn\'t. This shouldn\'t
-                    happen. Maybe we have a race condition?',
+                    'Expected to find a document at "%s",  but didn\'t. This shouldn\'t happen. Maybe you have a race condition?',
                     $path
                 ));
             }

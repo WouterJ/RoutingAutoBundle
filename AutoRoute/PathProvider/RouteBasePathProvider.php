@@ -12,7 +12,6 @@
 
 namespace Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProvider;
 
-use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProviderInterface;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\Exception\BadProviderPositionException;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\RouteStack;
 
@@ -21,7 +20,7 @@ use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\RouteStack;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class RouteBasePathObjectProvider implements PathProviderInterface
+class RouteBasePathObjectProvider extends AbstractPathProvider
 {
     protected $routingBasePath;
 
@@ -30,11 +29,7 @@ class RouteBasePathObjectProvider implements PathProviderInterface
         $this->routeBasePath = $routeBasePath;
     }
 
-    public function init(array $options)
-    {
-    }
-
-    public function providePath(RouteStack $routeStack)
+    public function providePath(RouteStack $routeStack, array $options)
     {
         $context = $routeStack->getContext();
 

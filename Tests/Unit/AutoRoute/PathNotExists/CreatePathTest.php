@@ -34,6 +34,6 @@ class CreatePathTest extends \PHPUnit_Framework_TestCase
         $this->routeMaker->expects($this->once())
             ->method('make')
             ->with($this->routeStack);
-        $this->createPath->execute($this->routeStack);
+        $this->createPath->execute($this->routeStack, array());
     }
 }

@@ -34,14 +34,6 @@ class ContentMethodProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\Exception\MissingOptionException
-     */
-    public function testProvidePath_noMethod()
-    {
-        $this->provider->init(array());
-    }
-
-    /**
      * @expectedException \BadMethodCallException
      */
     public function testProvideMethod_invalidMethod()
@@ -52,8 +44,11 @@ class ContentMethodProviderTest extends \PHPUnit_Framework_TestCase
         $this->builderContext->expects($this->once())
             ->method('getContent')
             ->will($this->returnValue($this->object));
-        $this->provider->init(array('method' => 'invalidMethod'));
-        $this->provider->providePath($this->routeStack);
+
+        $this->provider->providePath($this->routeStack, array(
+            'method' => 'invalidMethod',
+            'slugify' => true,
+        ));
     }
 
     public function setupTest($slugify = true)
@@ -79,8 +74,10 @@ class ContentMethodProviderTest extends \PHPUnit_Framework_TestCase
             ->method('addPathElements')
             ->with(array('this', 'is', 'path'));
 
-        $this->provider->init(array('method' => 'getSlug'));
-        $this->provider->providePath($this->routeStack);
+        $this->provider->providePath($this->routeStack, array(
+            'method' => 'getSlug',
+            'slugify' => true,
+        ));
     }
 
     public function testProvideMethodNoSlugify()
@@ -90,16 +87,17 @@ class ContentMethodProviderTest extends \PHPUnit_Framework_TestCase
             ->method('addPathElements')
             ->with(array('this', 'is', 'path'));
 
-        $this->provider->init(array('method' => 'getSlug', 'slugify' => false));
-        $this->provider->providePath($this->routeStack);
+        $this->provider->providePath($this->routeStack, array('method' => 'getSlug', 'slugify' => false));
     }
 
     public function testProvideMethodWithString()
     {
         $this->setupTest();
 
-        $this->provider->init(array('method' => 'getStringSlug'));
-        $this->provider->providePath($this->routeStack);
+        $this->provider->providePath($this->routeStack, array(
+            'method' => 'getStringSlug',
+            'slugify' => true,
+        ));
     }
 
     /**
@@ -109,8 +107,10 @@ class ContentMethodProviderTest extends \PHPUnit_Framework_TestCase
     {
         $this->setupTest();
 
-        $this->provider->init(array('method' => 'getAbsoluteSlug'));
-        $this->provider->providePath($this->routeStack);
+        $this->provider->providePath($this->routeStack, array(
+            'method' => 'getAbsoluteSlug',
+            'slugify' => true,
+        ));
     }
 }
 

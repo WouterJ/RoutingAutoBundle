@@ -12,10 +12,10 @@
 
 namespace Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProvider;
 
-use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProviderInterface;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\Exception\MissingOptionException;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\RouteStack;
 use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
  * Provides path elements by determining them from
@@ -33,35 +33,35 @@ use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
  *
  * @author Daniel Leech <daniel@dantleech.com>
  */
-class ContentMethodProvider implements PathProviderInterface
+class ContentMethodProvider extends AbstractPathProvider
 {
-    protected $method;
     protected $slugifier;
-    protected $slugify;
 
     public function __construct(SlugifierInterface $slugifier)
     {
         $this->slugifier = $slugifier;
     }
 
-    public function init(array $options)
+    /**
+     * {@inheritDoc}
+     */
+    public function configureOptions(OptionsResolverInterface $resolver)
     {
-        if (!isset($options['method'])) {
-            throw new MissingOptionException(__CLASS__, 'method');
-        }
+        $resolver->setDefaults(array(
+            'slugify' => true,
+        ));
 
-        $options = array_merge(array(
-            'slugify' => true
-        ), $options);
+        $resolver->setRequired(array('method'));
 
-        $this->method = $options['method'];
-        $this->slugify = $options['slugify'];
+        $resolver->setAllowedTypes(array(
+            'slugify' => 'bool',
+        ));
     }
 
-    public function providePath(RouteStack $routeStack)
+    public function providePath(RouteStack $routeStack, array $options)
     {
         $object = $routeStack->getContext()->getContent();
-        $method = $this->method;
+        $method = $options['method'];
 
         if (!method_exists($object, $method)) {
             throw new \BadMethodCallException(sprintf('Method "%s" does not exist on class "%s"', $method, get_class($object)));
@@ -69,14 +69,13 @@ class ContentMethodProvider implements PathProviderInterface
 
         $pathElements = $object->$method();
 
-        $pathElements = $this->normalizePathElements($pathElements);
-
+        $pathElements = $this->normalizePathElements($pathElements, $options['slugify']);
 
         // @todo: Validate the validator service.
         $routeStack->addPathElements($pathElements);
     }
 
-    protected function normalizePathElements($pathElements)
+    protected function normalizePathElements($pathElements, $slugify = true)
     {
         if (is_string($pathElements)) {
             if (substr($pathElements, 0, 1) == '/') {
@@ -95,7 +94,7 @@ class ContentMethodProvider implements PathProviderInterface
             ));
         }
 
-        if (true === $this->slugify) {
+        if ($slugify) {
             $slugifier = $this->slugifier;
             array_walk($pathElements, function (&$pathElement) use ($slugifier) {
                 $pathElement = $slugifier->slugify($pathElement);

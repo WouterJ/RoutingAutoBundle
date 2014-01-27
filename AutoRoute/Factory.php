@@ -28,12 +28,8 @@ class Factory
     // addition annotation/mapping in the future.
     protected $routeStackChains;
 
-    protected $serviceIds = array(
-        'provider' => array(),
-        'exists_action' => array(),
-        'not_exists_action' => array(),
-        'route_maker' => array(),
-    );
+    protected $builderServiceIds;
+    protected $resolvedBuilderServices;
 
     protected $container;
     protected $builder;
@@ -42,6 +38,12 @@ class Factory
     {
         $this->container = $container;
         $this->builder = $builder;
+        $this->builderServiceIds = $this->resolvedBuilderServices = array(
+            'provider' => array(),
+            'exists_action' => array(),
+            'not_exists_action' => array(),
+            'route_maker' => array(),
+        );
     }
 
     /**
@@ -67,11 +69,11 @@ class Factory
      */
     public function registerAlias($type, $alias, $id)
     {
-        if (!isset($this->serviceIds[$type])) {
+        if (!isset($this->builderServiceIds[$type])) {
             throw new \RuntimeException(sprintf('Unknown service ID type "%s"', $type));
         }
 
-        $this->serviceIds[$type][$alias] = $id;
+        $this->builderServiceIds[$type][$alias] = $id;
     }
 
     /**
@@ -159,7 +161,8 @@ class Factory
         $builderUnit = new BuilderUnit(
             $pathProvider,
             $existsAction,
-            $notExistsAction
+            $notExistsAction,
+            $config
         );
 
         return $builderUnit;
@@ -225,22 +228,27 @@ class Factory
 
         $alias = $builderConfig[$type][$aliasKey];
 
-        if (!isset($this->serviceIds[$type][$alias])) {
-            throw new \RuntimeException(sprintf(
-                '"%s" class with alias "%s" requested, but this alias does not exist. Registered aliases "%s"',
-                $type,
-                $alias,
-                implode(',', array_keys($this->serviceIds[$type]))
-            ));
+        if (isset($this->resolvedBuilderServices[$type][$alias])) {
+            $service = $this->resolvedBuilderServices[$type][$alias];
+        } else {
+            if (!isset($this->builderServiceIds[$type][$alias])) {
+                throw new \RuntimeException(sprintf(
+                    '"%s" class with alias "%s" requested, but this alias does not exist. Registered aliases "%s"',
+                    $type,
+                    $alias,
+                    implode(',', array_keys($this->builderServiceIds[$type]))
+                ));
+            }
+
+            $serviceId = $this->builderServiceIds[$type][$alias];
+            $service = $this->container->get($serviceId);
+
+            $service->configureOptions($service->getOptionsResolver());
+
+            $this->resolvedBuilderServices[$type][$alias] = $service;
         }
 
-        $serviceId = $this->serviceIds[$type][$alias];
-
-        // NOTE: Services must always be defined as scope=prototype for them
-        //       to be stateless (which is good here)
-        $service = $this->container->get($serviceId);
         unset($builderConfig[$type][$aliasKey]);
-        $service->init($builderConfig[$type]['options']);
 
         return $service;
     }

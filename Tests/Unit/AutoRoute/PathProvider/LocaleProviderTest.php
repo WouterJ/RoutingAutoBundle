@@ -41,7 +41,8 @@ class LocaleProviderTest extends \PHPUnit_Framework_TestCase
         $this->routeStack->expects($this->once())
             ->method('getContext')
             ->will($this->returnValue($this->builderContext));
-        $this->provider->providePath($this->routeStack);
+
+        $this->provider->providePath($this->routeStack, array());
     }
 
     public function testProvidePath()
@@ -57,7 +58,7 @@ class LocaleProviderTest extends \PHPUnit_Framework_TestCase
             ->method('addPathElements')
             ->with(array('fr'));
 
-        $res = $this->provider->providePath($this->routeStack);
+        $res = $this->provider->providePath($this->routeStack, array());
     }
 }
 

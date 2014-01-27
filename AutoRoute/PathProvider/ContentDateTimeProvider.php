@@ -12,10 +12,10 @@
 
 namespace Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProvider;
 
-use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\PathProviderInterface;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\Exception\MissingOptionException;
 use Symfony\Cmf\Bundle\RoutingAutoBundle\AutoRoute\RouteStack;
 use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
  * Provides path elements by determining them from
@@ -26,23 +26,19 @@ use Symfony\Cmf\Bundle\CoreBundle\Slugifier\SlugifierInterface;
  */
 class ContentDateTimeProvider extends ContentMethodProvider
 {
-    protected $dateFormat;
-
-    public function init(array $options)
+    public function configureOptions(OptionsResolverInterface $resolver)
     {
-        parent::init($options);
+        parent::configureOptions($resolver);
 
-        $options = array_merge(array(
-            'date_format' => 'Y-m-d'
-        ), $options);
-
-        $this->dateFormat = $options['date_format'];
+        $resolver->setDefaults(array(
+            'date_format' => 'Y-m-d',
+        ));
     }
 
-    public function providePath(RouteStack $routeStack)
+    public function providePath(RouteStack $routeStack, array $options)
     {
         $object = $routeStack->getContext()->getContent();
-        $method = $this->method;
+        $method = $options['method'];
 
         if (!method_exists($object, $method)) {
             throw new \BadMethodCallException(sprintf('Method "%s" does not exist on class "%s"', $method, get_class($object)));
@@ -54,8 +50,8 @@ class ContentDateTimeProvider extends ContentMethodProvider
             throw new \RuntimeException(sprintf('Method %s:%s must return an instance of DateTime.'));
         }
 
-        $string = $date->format($this->dateFormat);
-        $pathElements = $this->normalizePathElements($string);
+        $string = $date->format($options['date_format']);
+        $pathElements = $this->normalizePathElements($string, $options['slugify']);
 
         $routeStack->addPathElements($pathElements);
     }
