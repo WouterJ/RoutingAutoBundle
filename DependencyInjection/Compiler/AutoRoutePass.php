@@ -14,7 +14,6 @@ namespace Symfony\Cmf\Bundle\RoutingAutoBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
@@ -55,7 +54,7 @@ class AutoRoutePass implements CompilerPassInterface
 
                 $builderUnitChainFactory->addMethodCall(
                     'registerAlias', 
-                    array($type, $attributes[0]['alias'], new Reference($id)));
+                    array($type, $attributes[0]['alias'], $id));
             }
         }
     }
