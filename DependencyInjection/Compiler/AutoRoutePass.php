@@ -35,9 +35,9 @@ class AutoRoutePass implements CompilerPassInterface
 
 
         $types = array(
-            'provider', 
-            'exists_action', 
-            'not_exists_action', 
+            'provider',
+            'exists_action',
+            'not_exists_action',
             'route_maker'
         );
 
